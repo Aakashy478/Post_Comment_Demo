@@ -8,6 +8,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // Routes
+const router = require('./routes/index');
+app.use('/api', router);
+
 app.get('/welcome', (req, res) => {
     res.status(200).json({ message: 'Welcome to the API!' });
 });
