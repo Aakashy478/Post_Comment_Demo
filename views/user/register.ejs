@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #0072ff;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0072ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #005fcc;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 15px;
+            color: #555;
+        }
+
+        a {
+            color: #0072ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #ffe0e0;
+            border-left: 5px solid #ff4d4d;
+            color: #d8000c;
+            border-radius: 6px;
+        }
+
+        footer {
+            text-align: center;
+            color: #ccc;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Create Account</h1>
+        <form id="registerForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="profileImage">Profile Image:</label>
+                <input type="file" id="profileImage" name="profileImage">
+            </div>
+
+            <button type="submit">Register</button>
+            <p>Already have an account? <a href="/api/user/login">Login here</a></p>
+        </form>
+
+        <% if (error) { %>
+            <div class="error-message">
+                <p>
+                    <%= error %>
+                </p>
+            </div>
+            <% } %>
+
+                <footer>
+                    <p>&copy; 2025 Your App. All rights reserved.</p>
+                </footer>
+    </div>
+</body>
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const formData = new FormData(form);
+
+        try {
+            const res = await fetch('/api/user/register', {
+                method: 'POST',
+                body: formData, // NO content-type header manually
+            });
+
+            const result = await res.json();
+
+            if (res.status === 200 || res.status === 201 || res.status === 409) {
+                alert(result.message || "Registration successful!");
+                // optionally redirect
+                window.location.href = "/api/user/login";
+            } else if (res.status === 400 || res.status === 404 || res.status === 500) {
+                alert("Error: " + result.errors || result.message || "Something went wrong!");
+            }
+        } catch (err) {
+            console.error("Error submitting form:", err);
+            alert("Something went wrong! Please try again.");
+        }
+    });
+
+</script>
+
+</html>
