@@ -1,19 +1,35 @@
 require('dotenv').config();
 const express = require('express');
+const connectDB = require('./config/db');
+const path = require('path');
+const morgan = require('morgan');
+const bodyParser = require('body-parser');
+const logger = require('./utils/logger'); // Import the logger
+
 const app = express();
 
 // Middlewares
+// Use morgan middleware for logging 
+app.use(morgan('dev')); // logs method, URL, status, response time
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Database Connection
+connectDB();
+
+app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.url}`);
+    next();
+});
 
 // Routes
 const router = require('./routes/index');
-app.use('/api', router);
+const errorHandler = require('./middlewares/errorHandler');
 
-app.get('/welcome', (req, res) => {
-    res.status(200).json({ message: 'Welcome to the API!' });
-});
+app.use('/api', router);
 
 // 404 Not Found Handler
 app.use((req, res, next) => {
@@ -21,13 +37,6 @@ app.use((req, res, next) => {
 });
 
 // Error Handler
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
-});
+app.use(errorHandler);
 
-// Start Server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+module.exports = app;
